@@ -1,6 +1,6 @@
 import type { BlogPost } from "./definitions";
 
-const posts: BlogPost[] = [
+export const posts: BlogPost[] = [
   {
     id: "a5e08164-b12b-4e72-9191-2f7daadb4e88",
     title: "Post Title 1",
