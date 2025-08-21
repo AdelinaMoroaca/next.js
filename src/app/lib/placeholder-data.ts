@@ -1,6 +1,6 @@
 import type { BlogPost } from "./definitions";
 
-export const posts: BlogPost[] = [
+const posts: BlogPost[] = [
   {
     id: "a5e08164-b12b-4e72-9191-2f7daadb4e88",
     title: "Post Title 1",
@@ -82,6 +82,4 @@ export const posts: BlogPost[] = [
   },
 ];
 
-module.exports = {
-  posts,
-};
+export { posts };

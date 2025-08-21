@@ -1,14 +1,22 @@
 import { posts } from "@/app/lib/placeholder-data";
 import { notFound } from "next/navigation";
 import Post from "@/app/ui/components/posts/Post";
+import type { Post as PostType } from "@/app/lib/definitions";
 
-export default function Page({ params }: { params: { id: string } }) {
-  const post = posts.find((post: { id: string }) => post.id === params.id);
-  if (!post) return notFound();
+export default async function Page({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
+  const { id } = await params;
+
+  const post = (posts as PostType[]).find((p) => p.id === id);
+
+  if (!post) notFound();
+
   return (
     <>
       <h1>Post</h1>
-
       <Post {...post} />
     </>
   );
