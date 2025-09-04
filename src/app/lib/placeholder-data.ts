@@ -15,7 +15,7 @@ const posts: BlogPost[] = [
     content:
       "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
     date: "911166",
-    user: "Sandra B",
+    user: "Sandra A",
   },
   {
     id: "836b0611-e82e-4b5e-8ab9-8e9f98e43549",
