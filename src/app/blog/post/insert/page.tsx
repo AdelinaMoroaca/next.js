@@ -70,7 +70,7 @@ export default function Page() {
           <textarea
             id="content"
             name="content"
-            rows="4"
+            rows={4}
             value={formData.content}
             onChange={handleChange}
             className="w-full border-2 border-purple-100 p-2 rounded-md focus:border-purple-200 focus:outline-none"
