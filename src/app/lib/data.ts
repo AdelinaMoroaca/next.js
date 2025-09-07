@@ -1,4 +1,5 @@
 import { createClient } from "@vercel/postgres";
+import { unstable_noStore as noStore } from "next/cache";
 import { sql } from "@vercel/postgres";
 import type { Post } from "./definitions";
 
@@ -16,29 +17,14 @@ export async function connectToDB() {
   }
 }
 
-// export async function getPosts() {
-//   try {
-//     const data = await sql`SELECT * FROM posts LIMIT 5`;
-
-//     console.log(data.rows);
-
-//     return data.rows;
-//   } catch (error) {
-//     console.error("Error getting posts", error);
-//   }
-// }
-
 export async function getPosts(): Promise<Post[]> {
   try {
-    const { rows } = await sql<Post>`
-      SELECT id, title, content, date
-      FROM posts
-      ORDER BY date DESC
-      LIMIT 5;
-    `;
-    return rows;
+    noStore();
+    const data = await sql<Post>`SELECT * FROM posts`;
+    console.log("data.rows", data.rows);
+    return data.rows;
   } catch (error) {
-    console.error("❌ Error getting posts", error);
+    console.error("Error getting posts", error);
     throw error;
   }
 }
