@@ -12,3 +12,9 @@ export type BlogPost = {
   date: string;
   user: string;
 };
+
+export type User = {
+  name?: string | null;
+  email?: string | null;
+  image?: string | null;
+};

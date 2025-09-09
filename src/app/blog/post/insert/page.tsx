@@ -1,10 +1,17 @@
 "use client";
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+
 import { v4 as uuidv4 } from "uuid";
+import { useState, useEffect, useMemo } from "react";
+import { useRouter } from "next/navigation";
+import type { User } from "@app/lib/definitions";
+import { getSession } from "next-auth/react";
 
 export default function Page() {
   const router = useRouter();
+  const [generating, setGenerating] = useState(false);
+  const [content, setContent] = useState("");
+  const [user, setUser] = useState<User | null>(null);
+
   const [formData, setFormData] = useState({
     id: "",
     title: "",
@@ -26,27 +33,62 @@ export default function Page() {
     e.preventDefault();
     const uuid = uuidv4();
     fetch(
-      `/api/posts?id=${uuid}&title=${formData.title}&content=${formData.content}&date=${formData.date}`,
+      `/api/posts?id=${uuid}&title=${formData.title}&author=${user?.name}&content=${formData.content}&date=${formData.date}`,
       {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ ...formData, id: uuid }),
       }
     )
       .then(() => {
-        // Clear form fields
         setFormData({
           id: "",
           title: "",
           content: "",
-          date: "",
+          date: new Date().toISOString().slice(0, 10),
         });
         router.push("/blog/posts");
       })
       .catch(console.error);
   };
+
+  const generateContent = async () => {
+    if (!formData.title) return;
+    setGenerating(true);
+    try {
+      const response = await fetch("/api/generateContent", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ title: formData.title }),
+      });
+
+      const data = await response.json();
+
+      if (data.content) {
+        setContent(data.content);
+        setFormData((prev) => ({ ...prev, content: data.content }));
+      } else if (data.error) {
+        console.error("OpenAI error:", data.error);
+      }
+    } catch (err) {
+      console.error("Error:", err);
+    } finally {
+      setGenerating(false);
+    }
+  };
+
+  useEffect(() => {
+    getSession().then((session) => {
+      setUser(session?.user || null);
+      if (!session?.user) {
+        router.push("/blog/posts");
+      }
+    });
+  }, [router]);
+
+  const postContent = useMemo(() => {
+    return content || formData.content;
+  }, [content, formData.content]);
 
   return (
     <div className="bg-white p-8 rounded shadow">
@@ -77,7 +119,27 @@ export default function Page() {
             onChange={handleChange}
             className="w-full border-2 border-purple-100 p-2 rounded-md focus:border-purple-200 focus:outline-none"
           ></textarea>
+          {generating && (
+            <p className="text-purple-700 my-1">Generating content...</p>
+          )}
+          <button
+            onClick={generateContent}
+            type="button"
+            className="bg-purple-600 text-white px-4 py-2 rounded-md hover:bg-purple-700"
+          >
+            Generate Content
+          </button>
         </div>
+
+        {postContent && (
+          <div className="mt-4 p-4 bg-purple-50 rounded">
+            <h3 className="font-semibold text-purple-700">
+              Generated Preview:
+            </h3>
+            <p>{postContent}</p>
+          </div>
+        )}
+
         <div>
           <label htmlFor="date" className="block font-medium">
             Date:
@@ -94,7 +156,7 @@ export default function Page() {
         <div>
           <button
             type="submit"
-            className="bg-blue-400 text-white px-4 py-2 rounded-md bg-purple-600  hover:bg-purple-700"
+            className="bg-purple-600 text-white px-4 py-2 rounded-md hover:bg-purple-700"
           >
             Submit
           </button>

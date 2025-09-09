@@ -1,18 +1,20 @@
-import { posts } from "@/app/lib/placeholder-data";
+// src/app/blog/post/[id]/page.tsx
 import { notFound } from "next/navigation";
 import Post from "@/app/ui/components/posts/Post";
-import type { Post as PostType } from "@/app/lib/definitions";
+import { getPosts } from "@/app/lib/data";
 
-export default async function Page({
-  params,
-}: {
-  params: Promise<{ id: string }>;
-}) {
-  const { id } = await params;
+export async function generateStaticParams() {
+  const posts = await getPosts();
+  return posts.map((post) => ({ id: post.id }));
+}
 
-  const post = (posts as PostType[]).find((p) => p.id === id);
+export default async function Page({ params }: { params: { id: string } }) {
+  const posts = await getPosts();
+  const post = posts.find((p) => p.id === params.id);
 
-  if (!post) notFound();
+  if (!post) {
+    notFound();
+  }
 
   return (
     <>
