@@ -2,17 +2,13 @@
 import { notFound } from "next/navigation";
 import Post from "@/app/ui/components/posts/Post";
 import { getPosts } from "@/app/lib/data";
-interface PageProps {
-  params: {
-    id: string;
-  };
-}
+
 export async function generateStaticParams() {
   const posts = await getPosts();
   return posts.map((post) => ({ id: post.id }));
 }
 
-export default async function Page({ params }: PageProps) {
+export default async function Page({ params }: { params: { id: string } }) {
   const posts = await getPosts();
   const post = posts.find((p) => p.id === params.id);
 
