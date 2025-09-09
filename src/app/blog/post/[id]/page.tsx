@@ -3,12 +3,19 @@ import { notFound } from "next/navigation";
 import Post from "@/app/ui/components/posts/Post";
 import { getPosts } from "@/app/lib/data";
 
-export async function generateStaticParams() {
+// Explicit props type for this route
+interface PostPageProps {
+  params: {
+    id: string;
+  };
+}
+
+export async function generateStaticParams(): Promise<{ id: string }[]> {
   const posts = await getPosts();
   return posts.map((post) => ({ id: post.id }));
 }
 
-export default async function Page({ params }: { params: { id: string } }) {
+export default async function Page({ params }: PostPageProps) {
   const posts = await getPosts();
   const post = posts.find((p) => p.id === params.id);
 
